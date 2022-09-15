@@ -14,5 +14,4 @@ function(input, output) {
     # Return a list
     list(src = tmpfile, contentType = "image/png")
   }, deleteFile = FALSE)
-  
 }
