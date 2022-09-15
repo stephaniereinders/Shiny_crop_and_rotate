@@ -13,11 +13,14 @@ fluidPage(
       h5("Scaled image width:"),
       textOutput("scaled_width"),
       h5("Scaled image height:"),
-      textOutput("scaled_height")
+      textOutput("scaled_height"),
+      br(),
+      hr(),
+      actionButton("crop", "Crop")
     ),
 
     mainPanel(
-      imageOutput("image")
+      imageOutput("image", brush = brushOpts(id = "crop_brush", resetOnNew = TRUE))
     )
   )
 )

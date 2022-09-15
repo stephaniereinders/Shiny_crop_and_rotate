@@ -16,7 +16,10 @@ function(input, output, session) {
     image$height <- image$info$height
     
     # Scaled image width - scale image to fit in window width-wise
-    image$scaled_width = session$clientData$output_image_width
+    image$scaled_width <- session$clientData$output_image_width
+    
+    # Calculate scale factor (width * scale_factor = scaled_width)
+    image$scale_factor <- image$scaled_width / image$width
     })
   
   # RENDER: image
@@ -37,10 +40,27 @@ function(input, output, session) {
     list(src = tmpfile, contentType = "image/png", width=image$scaled_width)
   }, deleteFile = FALSE)
   
-  # RENDER: image dimensions
+  # RENDER: image info
   output$width <- renderText({image$width})
   output$height <- renderText({image$height})
   output$scaled_width <- renderText({image$scaled_width})
   output$scaled_height <- renderText({image$scaled_height})
+  output$scale_factor <- renderText({image$scale_factor})
+  
+  # BUTTON: crop
+  observeEvent(input$crop, {
+    
+    # Convert crop_brush coordinates back to original dimensions
+    # (Proof. width * scale_factor = scaled_width => scaled_width / scale_factor = width.)
+    xmin = input$crop_brush$xmin / image$scale_factor
+    xmax = input$crop_brush$xmax / image$scale_factor
+    ymin = input$crop_brush$ymin / image$scale_factor
+    ymax = input$crop_brush$ymax / image$scale_factor
+    
+    xrange = xmax - xmin
+    yrange = ymax - ymin
+      
+    image$current <- image_crop(image$current, paste(xrange,'x', yrange, '+', xmin, '+', ymin))
+  })
   
 }
