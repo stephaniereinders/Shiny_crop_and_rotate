@@ -6,7 +6,10 @@ fluidPage(
   sidebarLayout(      
     
     sidebarPanel(
-      
+      h5("Original image width:"),
+      textOutput("width"),
+      h5("Original image height:"),
+      textOutput("height")
     ),
 
     mainPanel(
