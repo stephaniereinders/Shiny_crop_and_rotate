@@ -4,14 +4,15 @@ library(magick)
 function(input, output, session) {
   
   # READ: image
-  image <- magick::image_read("sample_writing.png")
-  
+  image <- reactiveValues()
+  image$current <- magick::image_read("sample_writing.png")
+
   # RENDER: image
   output$image <- renderImage({
     
     session_width = session$clientData$output_image_width
     
-    tmpfile <- image %>%
+    tmpfile <- image$current %>%
       magick::image_resize(geometry_size_pixels(width=session_width)) %>%
       magick::image_write(tempfile(fileext='png'), format = 'png')
     
