@@ -18,6 +18,8 @@ fluidPage(
       hr(),
       actionButton("crop", "Crop"),
       br(),
+      actionButton("undo_crop", "Undo Crop"),
+      br(),
       hr(),
       numericInput("rotate", "Rotate", value=0, min=-90, max=90, step=1)
     ),
