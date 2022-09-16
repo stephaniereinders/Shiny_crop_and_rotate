@@ -7,16 +7,19 @@ fluidPage(
     
     sidebarPanel(
       h5("Original image width:"),
-      textOutput("width"),
+      textOutput("orig_width"),
       h5("Original image height:"),
-      textOutput("height"),
-      h5("Scaled image width:"),
-      textOutput("scaled_width"),
-      h5("Scaled image height:"),
-      textOutput("scaled_height"),
+      textOutput("orig_height"),
+      h5("Rotated image width:"),
+      textOutput("rotated_width"),
+      h5("Rotated image height:"),
+      textOutput("rotated_height"),
       br(),
       hr(),
-      actionButton("crop", "Crop")
+      actionButton("crop", "Crop"),
+      br(),
+      hr(),
+      numericInput("rotate", "Rotate", value=0, min=-90, max=90, step=1)
     ),
 
     mainPanel(
