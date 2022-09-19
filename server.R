@@ -40,6 +40,9 @@ function(input, output, session) {
   # BUTTON: crop
   observeEvent(input$crop, {
     
+    x_off = (image$current_width - image$orig_width)/2
+    y_off = (image$current_height - image$orig_height)/2
+    
     xmin = input$crop_brush$xmin
     xmax = input$crop_brush$xmax
     ymin = input$crop_brush$ymin
@@ -50,7 +53,7 @@ function(input, output, session) {
       
     # crop
     image$current <- image$current %>% 
-      image_crop(geometry_area(width=xrange, height=yrange, x_off=xmin, y_off=ymin))
+      image_crop(geometry_area(width=xrange, height=yrange, x_off=xmin-x_off, y_off=ymin-y_off))
     image$history <- append(image$history, image$current)
   })
   
