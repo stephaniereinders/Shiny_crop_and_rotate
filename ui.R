@@ -18,14 +18,16 @@ fluidPage(
       hr(),
       actionButton("crop", "Crop"),
       br(),
-      actionButton("undo_crop", "Undo Crop"),
+      br(),
+      actionButton("undo", "Undo"),
       br(),
       hr(),
       numericInput("rotate", "Rotate", value=0, min=-90, max=90, step=1)
     ),
 
     mainPanel(
-      imageOutput("image", brush = brushOpts(id = "crop_brush", resetOnNew = TRUE))
+      imageOutput("image", brush = brushOpts(id = "crop_brush", resetOnNew = TRUE)),
+      verbatimTextOutput("crop_brush_info")
     )
   )
 )
