@@ -8,13 +8,8 @@ function(input, output, session) {
   current_image <- magick::image_read("sample_writing.png")
   image$current <- current_image
   image$crop_list <- list(current_image)
-  
-  # OBSERVE: image info
-  observe({
-    # Original image dimensions
-    image$orig_width <- image_info(image$current)$width
-    image$orig_height <- image_info(image$current)$height
-  })
+  image$orig_width <- image_info(current_image)$width
+  image$orig_height <- image_info(current_image)$height
   
   # RENDER: image
   output$image <- renderImage({
@@ -39,20 +34,23 @@ function(input, output, session) {
   output$orig_width <- renderText({image$orig_width})
   output$orig_height <- renderText({image$orig_height})
   output$current_width <- renderText({image$current_width})
-  output$rotated_height <- renderText({image$rotated_height})
+  output$current_height <- renderText({image$current_height})
 
   # BUTTON: crop
   observeEvent(input$crop, {
+    
+    # calculate rotation scale factor ()
+    image$rot_scale_factor <- image$orig_width / image$current_width
     
     xmin = input$crop_brush$xmin
     xmax = input$crop_brush$xmax
     ymin = input$crop_brush$ymin
     ymax = input$crop_brush$ymax
     
-    xrange = xmax - xmin
-    yrange = ymax - ymin
+    xrange = (xmax - xmin)/image$rot_scale_factor 
+    yrange = (ymax - ymin)/image$rot_scale_factor 
       
-    image$current <- image_crop(image$current, paste(xrange,'x', yrange, '+', xmin, '+', ymin))
+    image$current <- image_crop(image$current, geometry_area(width=xrange, height=yrange, x_off=xmin, y_off=ymin))
     image$crop_list <- append(image$crop_list, image$current)
   })
   
