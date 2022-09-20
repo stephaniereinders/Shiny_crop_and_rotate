@@ -6,23 +6,22 @@ fluidPage(
   sidebarLayout(      
     
     sidebarPanel(
-      h5("Original image width:"),
-      textOutput("orig_width"),
-      h5("Original image height:"),
-      textOutput("orig_height"),
-      h5("Current image width:"),
-      textOutput("current_width"),
-      h5("Current image height:"),
-      textOutput("current_height"),
+      h5("Starting image width:"),
+      textOutput("starting_width", inline = TRUE),
+      h5("Starting image height:"),
+      textOutput("starting_height"),
+      h5("Display image width:"),
+      textOutput("display_width"),
+      h5("Display image height:"),
+      textOutput("display_height"),
       br(),
       hr(),
       actionButton("crop", "Crop"),
       br(),
-      br(),
-      actionButton("undo", "Undo"),
-      br(),
       hr(),
-      numericInput("rotate", "Rotate", value=0, min=-90, max=90, step=1)
+      numericInput("rotate", "Rotate", value=0, min=-90, max=90, step=1),
+      hr(),
+      actionButton("undo", "Undo"),
     ),
 
     mainPanel(

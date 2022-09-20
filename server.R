@@ -5,32 +5,41 @@ function(input, output, session) {
   
   # READ: image
   image <- reactiveValues()
-  sample_image <- magick::image_read("samplewriting.png")
-  image$current <- sample_image
-  image$history <- list(sample_image)
-  image$orig_width <- image_info(sample_image)$width
-  image$orig_height <- image_info(sample_image)$height
+  
+  # starting image
+  starting <- magick::image_read("samplewriting.png")
+  image$starting <- starting
+  image$starting_width <- image_info(starting)$width
+  image$starting_height <- image_info(starting)$height
+  
+  # displayed image
+  image$display <- starting
+  image$display_width <- image_info(starting)$width
+  image$display_heigth <- image_info(starting)$height
+  
+  # track image changes
+  image$image_history <- list(starting)
   
   # BUTTON: rotate
   observeEvent(input$rotate, {
     
     # rotate
-    image$current <- sample_image %>%
+    image$display <- image$starting %>%
       magick::image_rotate(degrees = input$rotate)
     
     # find dimensions of rotated image
-    image$current_width <- image_info(image$current)$width
-    image$current_height <- image_info(image$current)$height
+    image$display_width <- image_info(image$display)$width
+    image$display_height <- image_info(image$display)$height
     
     # add to image history
-    image$history <- append(image$history, image$current)
+    image$history <- append(image$history, image$display)
   })
 
   # BUTTON: crop
   observeEvent(input$crop, {
     
-    x_off = (image$current_width - image$orig_width)/2
-    y_off = (image$current_height - image$orig_height)/2
+    x_off = (image$display_width - image$starting_width)/2
+    y_off = (image$display_height - image$starting_height)/2
     
     xmin = input$crop_brush$xmin
     xmax = input$crop_brush$xmax
@@ -41,38 +50,33 @@ function(input, output, session) {
     yrange = (ymax - ymin)
       
     # crop
-    image$current <- image$current %>% 
+    image$display <- image$display %>% 
       image_crop(geometry_area(width=xrange, height=yrange, x_off=xmin-x_off, y_off=ymin-y_off))
-    image$history <- append(image$history, image$current)
+    image$history <- append(image$history, image$display)
   })
   
   # BUTTON: undo crop
   observeEvent(input$undo, {
-    image$current <- tail(image$history, 2)[[1]]
-    image$history <- head(image$history, -1)
+    image$display <- image$starting
     updateTextInput(session, "rotate", value=0)
   })
   
   # RENDER: image
   output$image <- renderImage({
     
-    # window height
-    image$window_height <- session$clientData$output_image_width
-    
     # write to temp file
-    tmpfile <- image$current %>%
-      magick::image_resize(geometry_size_pixels(width=session$clientData$output_image_width)) %>%
+    tmpfile <- image$display %>%
       magick::image_write(tempfile(fileext='png'), format = 'png')
     
     # return a list
-    list(src = tmpfile, contentType = "image/png", width=session$clientData$output_image_width)
+    list(src = tmpfile, contentType = "image/png")
   }, deleteFile = FALSE)
   
   # RENDER: image info
-  output$orig_width <- renderText({image$orig_width})
-  output$orig_height <- renderText({image$orig_height})
-  output$current_width <- renderText({image$current_width})
-  output$current_height <- renderText({image$current_height})
+  output$starting_width <- renderText({image$starting_width})
+  output$starting_height <- renderText({image$starting_height})
+  output$display_width <- renderText({image$display_width})
+  output$display_height <- renderText({image$display_height})
   
   # RENDER: crop brush info
   output$crop_brush_info <- renderPrint({
