@@ -56,11 +56,14 @@ function(input, output, session) {
     } else {
       x_off = y_off = 0
     }
+    
+    # calculate scaling factor
+    s <- image$display_width / image$window_width
 
-    xmin = input$crop_brush$xmin
-    xmax = input$crop_brush$xmax
-    ymin = input$crop_brush$ymin
-    ymax = input$crop_brush$ymax
+    xmin = s*input$crop_brush$xmin
+    xmax = s*input$crop_brush$xmax
+    ymin = s*input$crop_brush$ymin
+    ymax = s*input$crop_brush$ymax
     
     xrange = (xmax - xmin)
     yrange = (ymax - ymin)
@@ -84,7 +87,6 @@ function(input, output, session) {
     
     # reset rotation to 0 degrees
     updateTextInput(session, "rotate", value=0)
-    image$display_rotation <- 0
     
     # reset display dimensions
     image$display_width <- image$starting_width
@@ -97,13 +99,16 @@ function(input, output, session) {
   
   # RENDER: image
   output$image <- renderImage({
+    # find width of main window
+    image$window_width <- session$clientData$output_image_width
     
     # write to temp file
     tmpfile <- image$display %>%
+      magick::image_resize(geometry_size_pixels(width = image$window_width)) %>%
       magick::image_write(tempfile(fileext='png'), format = 'png')
     
     # return a list
-    list(src = tmpfile, contentType = "image/png")
+    list(src = tmpfile, contentType = "image/png", width = image$window_width)
   }, deleteFile = FALSE)
   
   # RENDER: image info
