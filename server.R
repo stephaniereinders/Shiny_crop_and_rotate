@@ -1,7 +1,11 @@
 library(magick)
+library(shinyjs)
 
 # Define a server for the Shiny app
 function(input, output, session) {
+  # turn off crop and rest buttons
+  shinyjs::disable("crop")
+  shinyjs::disable("reset")
   
   # READ: image
   image <- reactiveValues()
@@ -17,16 +21,30 @@ function(input, output, session) {
   image$display_width <- image_info(starting)$width
   image$display_heigth <- image_info(starting)$height
   
+  # OBSERVE: crop guides
+  observeEvent(input$crop_brush, {
+    # turn on crop button
+    shinyjs::enable("crop")
+  })
+  
   # BUTTON: rotate
   observeEvent(input$rotate, {
-    
     # rotate
-    image$display <- image$starting %>%
+    # rotating a rotated image does not reset the image size so rotate the starting image
+    image$display <- image$starting %>%  
       magick::image_rotate(degrees = input$rotate)
     
-    # find dimensions of rotated image
+    # update
     image$display_width <- image_info(image$display)$width
     image$display_height <- image_info(image$display)$height
+    
+    # rotating will undo cropping so turn off crop button
+    shinyjs::disable("crop")
+    
+    # turn on reset button
+    if (input$rotate != 0){
+      shinyjs::enable("reset")
+    }
   })
 
   # BUTTON: crop
@@ -46,6 +64,9 @@ function(input, output, session) {
     # crop
     image$display <- image$display %>% 
       image_crop(geometry_area(width=xrange, height=yrange, x_off=xmin-x_off, y_off=ymin-y_off))
+    
+    # turn on reset button
+    shinyjs::enable("reset")
   })
   
   # BUTTON: reset crop
@@ -55,6 +76,11 @@ function(input, output, session) {
     
     # reset rotation to 0 degrees
     updateTextInput(session, "rotate", value=0)
+    image$display_rotation <- 0
+    
+    # turn off crop and reset buttons
+    shinyjs::disable("crop")
+    shinyjs::disable("reset")
   })
   
   # RENDER: image

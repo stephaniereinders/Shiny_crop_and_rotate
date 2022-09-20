@@ -1,5 +1,6 @@
 # Use a fluid Bootstrap layout
 fluidPage(    
+  useShinyjs(),  # turn on shinyjs
   
   titlePanel("Cropping and Rotating Images"),
   
