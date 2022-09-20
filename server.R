@@ -19,17 +19,20 @@ function(input, output, session) {
   image$display <- starting
   image$display_width <- image_info(starting)$width
   image$display_heigth <- image_info(starting)$height
+  image$display_cropped <- FALSE
   
   # OBSERVE: crop guides
   observeEvent(input$crop_brush, {
-    # turn on crop button
-    shinyjs::enable("crop")
+    # turn on crop button if the display image hasn't already been cropped
+    if (!image$display_cropped){
+      shinyjs::enable("crop")
+    }
   })
   
   # BUTTON: rotate
   observeEvent(input$rotate, {
     # rotate
-    # rotating a rotated image does not reset the image size so rotate the starting image
+    # note: rotating a rotated image does not reset the image size so rotate the starting image
     image$display <- image$starting %>%  
       magick::image_rotate(degrees = input$rotate)
     
@@ -78,19 +81,24 @@ function(input, output, session) {
     
     # turn on reset button
     shinyjs::enable("reset")
+    
+    # turn off crop button
+    shinyjs::disable("crop")
+    
+    # keep crop button from turning on if user selects area of image
+    image$display_cropped <- TRUE  
   })
   
   # BUTTON: reset
   observeEvent(input$reset, {
     # reset to starting image
     image$display <- image$starting
+    image$display_width <- image$starting_width
+    image$display_height <- image$starting_height
+    image$display_cropped <- FALSE
     
     # reset rotation to 0 degrees
     updateTextInput(session, "rotate", value=0)
-    
-    # reset display dimensions
-    image$display_width <- image$starting_width
-    image$display_height <- image$starting_height
     
     # turn off crop and reset buttons
     shinyjs::disable("crop")
