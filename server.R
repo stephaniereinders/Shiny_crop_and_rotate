@@ -7,7 +7,6 @@ function(input, output, session) {
   shinyjs::disable("crop")
   shinyjs::disable("reset")
   
-  # READ: image
   image <- reactiveValues()
   
   # starting image
@@ -50,9 +49,14 @@ function(input, output, session) {
   # BUTTON: crop
   observeEvent(input$crop, {
     
-    x_off = (image$display_width - image$starting_width)/2
-    y_off = (image$display_height - image$starting_height)/2
-    
+    # calculate offsets for rotated image
+    if (input$rotate != 0){
+      x_off = (image$display_width - image$starting_width)/2
+      y_off = (image$display_height - image$starting_height)/2
+    } else {
+      x_off = y_off = 0
+    }
+
     xmin = input$crop_brush$xmin
     xmax = input$crop_brush$xmax
     ymin = input$crop_brush$ymin
@@ -65,11 +69,15 @@ function(input, output, session) {
     image$display <- image$display %>% 
       image_crop(geometry_area(width=xrange, height=yrange, x_off=xmin-x_off, y_off=ymin-y_off))
     
+    # update
+    image$display_width <- image_info(image$display)$width
+    image$display_height <- image_info(image$display)$height
+    
     # turn on reset button
     shinyjs::enable("reset")
   })
   
-  # BUTTON: reset crop
+  # BUTTON: reset
   observeEvent(input$reset, {
     # reset to starting image
     image$display <- image$starting
@@ -77,6 +85,10 @@ function(input, output, session) {
     # reset rotation to 0 degrees
     updateTextInput(session, "rotate", value=0)
     image$display_rotation <- 0
+    
+    # reset display dimensions
+    image$display_width <- image$starting_width
+    image$display_height <- image$starting_height
     
     # turn off crop and reset buttons
     shinyjs::disable("crop")

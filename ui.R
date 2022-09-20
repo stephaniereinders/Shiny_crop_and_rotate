@@ -1,3 +1,5 @@
+library(shinyjs)
+
 # Use a fluid Bootstrap layout
 fluidPage(    
   useShinyjs(),  # turn on shinyjs
@@ -8,7 +10,7 @@ fluidPage(
     
     sidebarPanel(
       h5("Starting image width:"),
-      textOutput("starting_width", inline = TRUE),
+      textOutput("starting_width"),
       h5("Starting image height:"),
       textOutput("starting_height"),
       h5("Display image width:"),
