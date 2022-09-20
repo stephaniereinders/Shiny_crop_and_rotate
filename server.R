@@ -17,9 +17,6 @@ function(input, output, session) {
   image$display_width <- image_info(starting)$width
   image$display_heigth <- image_info(starting)$height
   
-  # track image changes
-  image$image_history <- list(starting)
-  
   # BUTTON: rotate
   observeEvent(input$rotate, {
     
@@ -30,9 +27,6 @@ function(input, output, session) {
     # find dimensions of rotated image
     image$display_width <- image_info(image$display)$width
     image$display_height <- image_info(image$display)$height
-    
-    # add to image history
-    image$history <- append(image$history, image$display)
   })
 
   # BUTTON: crop
@@ -52,12 +46,14 @@ function(input, output, session) {
     # crop
     image$display <- image$display %>% 
       image_crop(geometry_area(width=xrange, height=yrange, x_off=xmin-x_off, y_off=ymin-y_off))
-    image$history <- append(image$history, image$display)
   })
   
-  # BUTTON: undo crop
-  observeEvent(input$undo, {
+  # BUTTON: reset crop
+  observeEvent(input$reset, {
+    # reset to starting image
     image$display <- image$starting
+    
+    # reset rotation to 0 degrees
     updateTextInput(session, "rotate", value=0)
   })
   
