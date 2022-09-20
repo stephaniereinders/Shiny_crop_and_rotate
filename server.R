@@ -15,7 +15,7 @@ function(input, output, session) {
   observeEvent(input$rotate, {
     
     # rotate
-    image$current <- image$current %>%
+    image$current <- sample_image %>%
       magick::image_rotate(degrees = input$rotate)
     
     # find dimensions of rotated image
@@ -25,17 +25,6 @@ function(input, output, session) {
     # add to image history
     image$history <- append(image$history, image$current)
   })
-  
-  # RENDER: image
-  output$image <- renderImage({
-    
-    # write to temp file
-    tmpfile <- image$current %>%
-      magick::image_write(tempfile(fileext='png'), format = 'png')
-      
-    # return a list
-    list(src = tmpfile, contentType = "image/png")
-  }, deleteFile = FALSE)
 
   # BUTTON: crop
   observeEvent(input$crop, {
@@ -61,7 +50,23 @@ function(input, output, session) {
   observeEvent(input$undo, {
     image$current <- tail(image$history, 2)[[1]]
     image$history <- head(image$history, -1)
+    updateTextInput(session, "rotate", value=0)
   })
+  
+  # RENDER: image
+  output$image <- renderImage({
+    
+    # window height
+    image$window_height <- session$clientData$output_image_width
+    
+    # write to temp file
+    tmpfile <- image$current %>%
+      magick::image_resize(geometry_size_pixels(width=session$clientData$output_image_width)) %>%
+      magick::image_write(tempfile(fileext='png'), format = 'png')
+    
+    # return a list
+    list(src = tmpfile, contentType = "image/png", width=session$clientData$output_image_width)
+  }, deleteFile = FALSE)
   
   # RENDER: image info
   output$orig_width <- renderText({image$orig_width})
