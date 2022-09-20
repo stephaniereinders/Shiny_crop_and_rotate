@@ -26,8 +26,10 @@ fluidPage(
     ),
 
     mainPanel(
-      imageOutput("image", brush = brushOpts(id = "crop_brush", resetOnNew = TRUE)),
-      verbatimTextOutput("crop_brush_info")
+      tabsetPanel(
+        tabPanel("Image", imageOutput("image", brush = brushOpts(id = "crop_brush", resetOnNew = TRUE))),
+        tabPanel("Crop Info", verbatimTextOutput("crop_brush_info")),
+      )
     )
   )
 )
